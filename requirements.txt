@@ -1,0 +1,8 @@
+# Librerías de Python del proyecto. Se instalan con: pip install -r requirements.txt
+# El servidor de Redis no es una librería de Python, se instala aparte (ver README).
+
+# Cliente de Redis para Python
+redis
+
+# Pruebas automáticas
+pytest
