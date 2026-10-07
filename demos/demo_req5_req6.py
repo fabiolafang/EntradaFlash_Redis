@@ -25,6 +25,9 @@ ZONA_AGOTADA = "DEMO-AGOTADA"
 USUARIOS = [f"USR-{i:05d}" for i in range(101, 131)]
 IP_OFICINA = "10.50.0.7"
 TTL_CARRITO_DEMO = 10     # segundos que dura el carrito del Caso B (subirlo si hace falta)
+VENTANA_D_NORMAL = 3      # ventana del Caso D al correr sin pausa
+VENTANA_D_PAUSA = 20      # ventana del Caso D con --pausa (da tiempo de verlo en Redis)
+VENTANA_E_F = 60          # ventana de los Casos E y F (segundos)
 
 PAUSA = False
 
@@ -125,28 +128,34 @@ def caso_c():
 
 
 def caso_d():
-    titulo("Caso D - Rate limiting por usuario: límite 5 intentos cada 3 s")
+    ventana = VENTANA_D_PAUSA if PAUSA else VENTANA_D_NORMAL
+    titulo(f"Caso D - Rate limiting por usuario: límite 5 intentos cada {ventana} s")
     u = USUARIOS[3]
+    clave = rl.clave_limite_usuario(u)
     for n in range(1, 8):
-        res = rl.verificar_intento(user_id=u, limite_usuario=5, ventana_segundos=3)
+        res = rl.verificar_intento(user_id=u, limite_usuario=5, ventana_segundos=ventana)
         extra = (f"restantes {res['intentos_restantes']['usuario']}"
                  if res["status"] == "EXITO"
                  else f"reintentar en {res['reintentar_en_segundos']} s")
         print(f"  Intento {n}: {res['status']}  ({extra})")
-    print(f"  TTL del contador en Redis: {rv.r.pttl(rl.clave_limite_usuario(u)) / 1000:.1f} s")
-    print("  Esperando 3.2 s a que Redis borre el contador...")
-    time.sleep(3.2)
-    res = rl.verificar_intento(user_id=u, limite_usuario=5, ventana_segundos=3)
+    print(f"  TTL del contador en Redis: {rv.r.pttl(clave) / 1000:.1f} s")
+    if PAUSA:
+        input(f"  (El contador {clave} vive {ventana} s: este es el momento de mirarlo "
+              "en Redis. Enter para esperar a que venza)")
+    restante = max(rv.r.pttl(clave), 0) / 1000
+    print(f"  Esperando {restante:.1f} s a que Redis borre el contador...")
+    time.sleep(restante + 0.2)
+    res = rl.verificar_intento(user_id=u, limite_usuario=5, ventana_segundos=ventana)
     print(f"  Intento tras la ventana: {res['status']}  {res.get('intentos_restantes')}")
 
 
 def caso_e():
     titulo("Caso E - Rate limiting por IP: 4 usuarios detrás de una misma IP")
-    print(f"  Límite: 3 intentos por usuario y 4 por IP ({IP_OFICINA}), ventana de 30 s")
+    print(f"  Límite: 3 intentos por usuario y 4 por IP ({IP_OFICINA}), ventana de {VENTANA_E_F} s")
     plan = [USUARIOS[4], USUARIOS[5], USUARIOS[4], USUARIOS[6], USUARIOS[7]]
     for u in plan:
         res = rl.verificar_intento(user_id=u, ip=IP_OFICINA, limite_usuario=3,
-                                   limite_ip=4, ventana_segundos=30)
+                                   limite_ip=4, ventana_segundos=VENTANA_E_F)
         extra = (f"restantes {res['intentos_restantes']}" if res["status"] == "EXITO"
                  else f"bloqueado por {res['ambito']}")
         print(f"  {u}: {res['status']}  ({extra})")
@@ -163,7 +172,7 @@ def caso_f():
     def intento(i):
         barrera.wait()
         resultados[i] = rl.verificar_intento(user_id=u, limite_usuario=limite,
-                                             ventana_segundos=30)
+                                             ventana_segundos=VENTANA_E_F)
 
     inicio = time.perf_counter()
     hilos = [threading.Thread(target=intento, args=(i,)) for i in range(n)]
@@ -178,6 +187,9 @@ def caso_f():
           f"|  tiempo: {duracion * 1000:.0f} ms")
     print(f"  Contador final en Redis: {rv.r.get(rl.clave_limite_usuario(u))}  "
           f"(esperado {limite}: los rechazos no se cuentan)")
+    if PAUSA:
+        input(f"  (El contador {rl.clave_limite_usuario(u)} vive unos {VENTANA_E_F} s: "
+              "este es el momento de mirarlo en Redis. Enter para terminar)")
 
 
 def main():
