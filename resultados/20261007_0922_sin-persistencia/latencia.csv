@@ -1,0 +1,11 @@
+operacion,tipo,requisito,n,repeticiones,promedio_ms,p50_ms,p95_ms,p99_ms,max_ms,ops_por_s,exitosas_pct
+GET stock (Redis directo),lectura,base,5000,3,0.081,0.0806,0.0849,0.0884,0.129,12346.7025,100.0
+SET clave (Redis directo),escritura,base,5000,3,0.084,0.0834,0.0884,0.0914,0.1891,11907.8137,100.0
+DECRBY stock (Redis directo),atómica,base,5000,3,0.0812,0.081,0.0855,0.089,0.2047,12316.7818,100.0
+consultar_disponibilidad,lectura,R1,5000,3,0.0792,0.0773,0.085,0.0878,0.1159,12620.232,100.0
+crear_reserva_temporal,escritura + atómica,R2/R4,5000,3,0.1021,0.1016,0.111,0.1177,0.1658,9792.9156,100.0
+confirmar_reserva,atómica,R3/R4,5000,3,0.087,0.0853,0.0981,0.1151,0.1312,11491.9724,100.0
+cancelar_reserva,atómica,R3/R4,5000,3,0.0968,0.0966,0.1015,0.1321,0.1425,10334.9668,100.0
+agregar_item (carrito),escritura + atómica,R5,5000,3,0.1964,0.1955,0.2061,0.2232,0.2808,5092.5061,100.0
+ver_carrito,lectura,R5,5000,3,0.0924,0.0917,0.0961,0.1191,0.1294,10825.4281,100.0
+verificar_intento (usuario + IP),atómica,R6,5000,3,0.0981,0.0978,0.1044,0.1247,0.2281,10192.9709,100.0

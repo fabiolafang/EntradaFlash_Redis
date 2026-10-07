@@ -1,0 +1,35 @@
+{
+  "fecha": "2026-10-07T09:23:03",
+  "etiqueta": "aof-everysec",
+  "sistema": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "cpu": "Apple M3",
+  "nucleos": 8,
+  "ram_gb": 16.0,
+  "python": "3.13.5",
+  "redis_py": "8.1.0",
+  "redis_version": "7.4.7",
+  "redis_modo": "standalone",
+  "redis_os": "Darwin 27.0.0 arm64",
+  "conexion": "localhost:6380",
+  "persistencia_config": {
+    "save": "",
+    "appendonly": "yes",
+    "appendfsync": "everysec"
+  },
+  "aof_activo": 1,
+  "claves_en_redis": 72535,
+  "modulo_proyecto": "reservas.py",
+  "carpeta_proyecto": "/Users/lc/Documents/GitHub/EntradaFlash_Redis/src",
+  "parametros": {
+    "n": 5000,
+    "calentamiento": 500,
+    "repeticiones": 3,
+    "hilos": [
+      1,
+      8,
+      32,
+      64
+    ],
+    "ops_concurrencia": 10000
+  }
+}
