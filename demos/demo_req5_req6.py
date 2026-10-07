@@ -115,6 +115,9 @@ def caso_c():
     print(f"  Stock después -> VIP {stock(ZONA_VIP)} (esperado {antes_vip - 2}), "
           f"PREMB {stock(ZONA_PREMB)} (esperado {antes_premb - 1})")
     print(f"  Carrito restante: {ss.ver_carrito(u)['items']}")
+    if PAUSA:
+        input("  (Las reservas siguen vivas 30 s: este es el momento de mirarlas en "
+              "Redis. Enter para limpiar y seguir)")
     for zona in (ZONA_VIP, ZONA_PREMB):
         rv.cancelar_reserva(u, EVENTO, zona)
         rv.r.delete(rv.clave_reserva(u, EVENTO, zona))
