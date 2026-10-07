@@ -24,6 +24,7 @@ ZONA_VIP, ZONA_PREMB = "VIP", "PREMB"
 ZONA_AGOTADA = "DEMO-AGOTADA"
 USUARIOS = [f"USR-{i:05d}" for i in range(101, 131)]
 IP_OFICINA = "10.50.0.7"
+TTL_CARRITO_DEMO = 10     # segundos que dura el carrito del Caso B (subirlo si hace falta)
 
 PAUSA = False
 
@@ -84,9 +85,9 @@ def caso_a():
 def caso_b():
     titulo("Caso B - El carrito abandonado desaparece solo")
     u = USUARIOS[1]
-    mostrar("Agregar 2 VIP con TTL 3 s", ss.agregar_item(u, EVENTO, ZONA_VIP, 2,
-                                                         ttl_segundos=3))
-    for _ in range(4):
+    mostrar(f"Agregar 2 VIP con TTL {TTL_CARRITO_DEMO} s",
+            ss.agregar_item(u, EVENTO, ZONA_VIP, 2, ttl_segundos=TTL_CARRITO_DEMO))
+    for _ in range(TTL_CARRITO_DEMO + 1):
         carrito = ss.ver_carrito(u)
         print(f"    TTL restante: "
               f"{carrito['ttl_restante_s'] if carrito else 'carrito eliminado'}")
