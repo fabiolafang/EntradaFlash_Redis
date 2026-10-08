@@ -1,0 +1,19 @@
+{
+  "etiqueta": "rdb",
+  "modulo": "reservas.py",
+  "preparado_en": 1791386459.6694112,
+  "persistencia": {
+    "save": "300 100",
+    "appendonly": "no",
+    "appendfsync": "everysec"
+  },
+  "antes": {
+    "claves_totales": 72570,
+    "stock_demo": 70,
+    "stock_vip_evt101": "1000",
+    "usuarios_dataset": 2,
+    "confirmadas": 10,
+    "pendientes": 5,
+    "carrito_entradas": 3
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "etiqueta": "sin-persistencia",
+  "modulo": "reservas.py",
+  "preparado_en": 1791386449.496209,
+  "persistencia": {
+    "save": "",
+    "appendonly": "no",
+    "appendfsync": "everysec"
+  },
+  "antes": {
+    "claves_totales": 72570,
+    "stock_demo": 70,
+    "stock_vip_evt101": "1000",
+    "usuarios_dataset": 2,
+    "confirmadas": 10,
+    "pendientes": 5,
+    "carrito_entradas": 3
+  }
+}
