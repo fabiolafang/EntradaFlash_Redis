@@ -10,8 +10,9 @@ Parte 2 - Reproducción de los intentos de reserva del dataset del grupo
           ninguna zona quedó negativa y que el inventario cuadra.
 
 Ejecutar (con Redis arriba y los datos cargados con seed_redis.py):
-    python prueba_concurrencia.py
-    python prueba_concurrencia.py --intentos 20000 --hilos 32
+    python pruebas/prueba_concurrencia.py
+    python pruebas/prueba_concurrencia.py --intentos 20000 --hilos 32
+Por defecto lee datos/reservation_attempts.json; otro archivo se indica con --archivo.
 
 La parte 2 modifica el stock real (vende entradas). Para restaurar los
 datos originales, volver a ejecutar seed_redis.py.
@@ -24,10 +25,13 @@ import threading
 import time
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import reservas as rv
 
 SEMILLA = 42
+# Por defecto se usan los intentos de datos/, sin importar desde que carpeta se ejecute.
+ARCHIVO_INTENTOS = Path(__file__).resolve().parent.parent / "datos" / "reservation_attempts.json"
 
 
 # ---------------------------------------------------------------------------
@@ -225,7 +229,7 @@ def reproducir(ruta, limite, hilos, ttl, p_confirmar, p_cancelar):
 def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--archivo", default="reservation_attempts.json")
+    p.add_argument("--archivo", default=str(ARCHIVO_INTENTOS))
     p.add_argument("--intentos", type=int, default=0,
                    help="cuántos intentos reproducir (0 = todos)")
     p.add_argument("--hilos", type=int, default=64)
