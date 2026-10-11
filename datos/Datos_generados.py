@@ -1,10 +1,19 @@
 import json
 import random
-import time
+from pathlib import Path
 
 #Configuración de Semilla para Garantizar Reproducibilidad
 SEED = 42
 random.seed(SEED)
+
+# Los intentos de reserva llevan una marca de tiempo (segundos desde 1970). Se parte de
+# una fecha fija (27/09/2026 15:35:35, hora de Costa Rica) y no de la hora actual, para
+# que cada ejecucion genere exactamente los mismos archivos que estan en el repositorio.
+BASE_TIMESTAMP = 1790544935
+
+# Los archivos de salida se guardan junto a este script, sin importar desde que carpeta
+# se ejecute (antes se guardaban en la carpeta actual y quedaban copias sueltas).
+CARPETA_SALIDA = Path(__file__).resolve().parent
 
 def generate_events_data():
     """
@@ -82,7 +91,7 @@ def generate_reservation_attempts(user_ids, events, zones, total_attempts=100000
     Genera 100,000 intentos de reserva con distribución realista para concurrencia.
     """
     attempts = []
-    base_timestamp = int(time.time())
+    base_timestamp = BASE_TIMESTAMP
 
     for i in range(1, total_attempts + 1):
         uid = random.choice(user_ids)
@@ -116,15 +125,15 @@ def main():
     # 3. Exportar a archivos JSON para inspección o carga
     print("\n[+] Guardando dataset en disco...")
     
-    with open("dataset_kv_initial.json", "w") as f:
+    with open(CARPETA_SALIDA / "dataset_kv_initial.json", "w") as f:
         json.dump(full_kv_dataset, f, indent=2)
         
-    with open("reservation_attempts.json", "w") as f:
+    with open(CARPETA_SALIDA / "reservation_attempts.json", "w") as f:
         json.dump(attempts, f, indent=2)
 
     print("\n¡Generación completada con éxito!")
     print(f"- Muestra de Claves generadas: {list(full_kv_dataset.keys())[:5]}")
-    print(f"- Archivos de salida: 'dataset_kv_initial.json' y 'reservation_attempts.json'")
+    print(f"- Archivos de salida en {CARPETA_SALIDA}: 'dataset_kv_initial.json' y 'reservation_attempts.json'")
 
 if __name__ == "__main__":
     main()

@@ -1,9 +1,14 @@
 """
 Demostración en vivo - Requisitos 5 y 6 (EntradaFlash CR).
 
-Antes de ejecutar:  python seed_redis.py   (deja los datos en su estado inicial)
-Ejecutar:           python demo_req5_req6.py
-Modo presentación:  python demo_req5_req6.py --pausa   (espera Enter entre casos)
+Antes de ejecutar (desde la carpeta principal del repositorio, con Redis en el puerto 6380):
+  1. cd datos && python seed_redis.py && cd ..   (deja los datos en su estado inicial)
+  2. export PYTHONPATH=src                       (en Windows: set PYTHONPATH=src)
+Ejecutar:           python demos/demo_req5_req6.py
+Modo presentación:  python demos/demo_req5_req6.py --pausa   (espera Enter entre casos)
+Solo algunos casos: python demos/demo_req5_req6.py --casos ABC   (por defecto, todos)
+                    Acepta letras de la A a la F, en el orden dado: --casos ABCF o A,B,C,F
+                    Se combina con --pausa:  --casos ABCF --pausa
 
 Usa los usuarios USR-00101 a USR-00130 y el evento EVT-102, que no se cruzan con
 la demo de los requisitos 3 y 4. Al terminar deja el inventario como lo encontró.
@@ -194,19 +199,26 @@ def caso_f():
 
 def main():
     global PAUSA
+    casos = {"A": caso_a, "B": caso_b, "C": caso_c,
+             "D": caso_d, "E": caso_e, "F": caso_f}
     p = argparse.ArgumentParser()
     p.add_argument("--pausa", action="store_true", help="esperar Enter entre casos")
-    PAUSA = p.parse_args().pausa
+    p.add_argument("--casos", default="ABCDEF",
+                   help="letras de los casos a correr, por ejemplo ABC o A,B,C,F "
+                        "(por defecto, todos)")
+    args = p.parse_args()
+    PAUSA = args.pausa
+
+    elegidos = [c for c in args.casos.upper() if c.isalpha()]
+    invalidos = sorted(set(elegidos) - set(casos))
+    if invalidos or not elegidos:
+        p.error(f"--casos solo acepta las letras A a F (recibido: {args.casos!r})")
 
     print("=== DEMOSTRACIÓN REQUISITOS 5 Y 6 - EntradaFlash CR ===")
     preparar()
     try:
-        caso_a()
-        caso_b()
-        caso_c()
-        caso_d()
-        caso_e()
-        caso_f()
+        for letra in dict.fromkeys(elegidos):   # sin repetir y en el orden dado
+            casos[letra]()
     finally:
         limpiar()
     print("\nDemostración terminada.")
